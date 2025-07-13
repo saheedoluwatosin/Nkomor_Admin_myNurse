@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Healthcare Admin - Patients</title>
+  <link rel="shortcut icon" type="image/png" href="./assets/images/logos/favicon.png" />
+  <link rel="stylesheet" href="./assets/css/styles.min.css" />
+  <style>
+    .search-container {
+      margin-bottom: 20px;
+    }
+    .table-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .patient-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    .badge-active { background-color: #28a745; }
+    .badge-inactive { background-color: #6c757d; }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    .booking-list {
+      list-style: none;
+      padding: 0;
+    }
+    .booking-list li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <div>
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+          <a href="./dashboard.html" class="text-nowrap logo-img">
+            <img src="./assets/images/logos/logo.svg" alt="" />
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
+        </div>
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+          <ul id="sidebarnav">
+            <li class="nav-small-cap">
+              <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+              <span class="hide-menu">Home</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./dashboard.html" aria-expanded="false">
+                <span><i class="ti ti-layout-dashboard"></i></span>
+                <span class="hide-menu">Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-small-cap">
+              <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+              <span class="hide-menu">Management</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link active" href="./patients.html" aria-expanded="false">
+                <span><i class="ti ti-users"></i></span>
+                <span class="hide-menu">Patients</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./nurses.html" aria-expanded="false">
+                <span><i class="ti ti-stethoscope"></i></span>
+                <span class="hide-menu">Nurses</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./appointments.html" aria-expanded="false">
+                <span><i class="ti ti-calendar"></i></span>
+                <span class="hide-menu">Appointments</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="./revenue.html" aria-expanded="false">
+                <span><i class="ti ti-chart-line"></i></span>
+                <span class="hide-menu">Revenue</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+    
+    <!-- Main wrapper -->
+    <div class="body-wrapper">
+      <!-- Header Start -->
+      <header class="app-header">
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <ul class="navbar-nav">
+            <li class="nav-item d-block d-xl-none">
+              <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
+                <i class="ti ti-menu-2"></i>
+              </a>
+            </li>
+          </ul>
+          <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+            <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+              <li class="nav-item dropdown">
+                <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown">
+                  <img src="./assets/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
+                </a>
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up">
+                  <div class="message-body">
+                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                      <i class="ti ti-user fs-6"></i>
+                      <p class="mb-0 fs-3">My Profile</p>
+                    </a>
+                    <a href="javascript:void(0)" onclick="logout()" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      
+      <!-- Container fluid -->
+      <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5 class="card-title fw-semibold mb-0">Patients Management</h5>
+                    <p class="text-muted mb-0">Total Patients: <span id="totalPatientsCount">0</span></p>
+                  </div>
+                  <div class="search-container">
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="searchInput" placeholder="Search patients...">
+                      <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                        <i class="ti ti-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Patients Table -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card table-container">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Patient</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
+                        <th>Age</th>
+                        <th>Location</th>
+                        <th>Registered</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="patientsTable">
+                      <tr>
+                        <td colspan="9" class="loading">Loading patients...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Booking Details Modal -->
+      <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="bookingModalLabel">Booking Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="bookingDetails">
+              <!-- Booking details will be populated here -->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="./assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="./assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  
+  <script>
+    const API_BASE_URL = 'http://localhost:8081/api/v1';
+    let patientsData = [];
+    let filteredPatients = [];
+    
+    // Check if user is logged in
+    function checkAuth() {
+      const token = localStorage.getItem('authToken');
+      console.log('checkAuth: token =', token?.substring(0, 10) + '...');
+      if (!token) {
+        console.warn('No authToken found, redirecting to login.html');
+        window.location.href = './login.html';
+        return false;
+      }
+      return token;
+    }
+    
+    // Logout function
+    function logout() {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      window.location.href = './login.html';
+    }
+    
+    // API call helper
+    async function apiCall(endpoint, options = {}) {
+      const token = checkAuth();
+      if (!token) return;
+      
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          ...options.headers
+        },
+        ...options
+      };
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('API Error:', error);
+        return null;
+      }
+    }
+    
+    // Load patients data
+    async function loadPatients() {
+      try {
+        const [patientsResponse, totalResponse] = await Promise.all([
+          apiCall('/list-of-patients'),
+          apiCall('/total-registered-patients')
+        ]);
+        
+        if (patientsResponse && patientsResponse.data && patientsResponse.data.data) {
+          patientsData = patientsResponse.data.data;
+          filteredPatients = [...patientsData];
+          renderPatients();
+        } else {
+          throw new Error('Invalid patients data structure');
+        }
+        
+        if (totalResponse && totalResponse.data) {
+          document.getElementById('totalPatientsCount').textContent = totalResponse.data.totalPatients || patientsResponse.data.total;
+        }
+        
+      } catch (error) {
+        console.error('Error loading patients:', error);
+        document.getElementById('patientsTable').innerHTML = 
+          '<tr><td colspan="9" class="text-center text-danger">Error loading patients</td></tr>';
+      }
+    }
+    
+    // Render patients table
+    function renderPatients() {
+      const tbody = document.getElementById('patientsTable');
+      
+      if (!filteredPatients || filteredPatients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">No patients found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = filteredPatients.map(patient => {
+        const details = patient.details || {};
+        const fullName = `${details.firstname || ''} ${details.lastname || ''}`.trim() || 'N/A';
+        const initials = fullName !== 'N/A' ? fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'N/A';
+        const age = details.date_of_birth ? calculateAge(details.date_of_birth) : 'N/A';
+        const registeredDate = details.created_at ? new Date(details.created_at).toLocaleDateString() : 'N/A';
+        
+        return `
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="patient-avatar me-3">${initials}</div>
+                <div>
+                  <h6 class="mb-0">${fullName}</h6>
+                  <small class="text-muted">ID: ${details.id || 'N/A'}</small>
+                </div>
+              </div>
+            </td>
+            <td>${details.email || 'N/A'}</td>
+            <td>${details.phone || 'N/A'}</td>
+            <td>${details.gender || 'N/A'}</td>
+            <td>${age}</td>
+            <td>${details.address || 'N/A'}</td>
+            <td>${registeredDate}</td>
+            <td>
+              <span class="badge ${details.is_active ? 'badge-active' : 'badge-inactive'}">
+                ${details.is_active ? 'Active' : 'Inactive'}
+              </span>
+            </td>
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  Actions
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" onclick="viewBookingDetails(${details.id})">View Booking</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="viewPatient(${details.id})">View Details</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="editPatient(${details.id})">Edit</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#" onclick="togglePatientStatus(${details.id}, ${details.is_active})">
+                    ${details.is_active ? 'Deactivate' : 'Activate'}
+                  </a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // Calculate age from date of birth
+    function calculateAge(dateOfBirth) {
+      const today = new Date();
+      const birthDate = new Date(dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      return age;
+    }
+    
+    // Search functionality
+    function searchPatients() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      
+      if (searchTerm === '') {
+        filteredPatients = [...patientsData];
+      } else {
+        filteredPatients = patientsData.filter(patient => {
+          const details = patient.details || {};
+          const fullName = `${details.firstname || ''} ${details.lastname || ''}`.trim().toLowerCase();
+          return (
+            (fullName && fullName.includes(searchTerm)) ||
+            (details.email && details.email.toLowerCase().includes(searchTerm)) ||
+            (details.phone && details.phone.includes(searchTerm)) ||
+            (details.address && details.address.toLowerCase().includes(searchTerm))
+          );
+        });
+      }
+      
+      renderPatients();
+    }
+    
+    // View patient details
+    function viewPatient(patientId) {
+      const patient = patientsData.find(p => p.details.id === patientId);
+      if (patient && patient.details) {
+        const fullName = `${patient.details.firstname || ''} ${patient.details.lastname || ''}`.trim() || 'N/A';
+        alert(`Patient Details:\n\nName: ${fullName}\nEmail: ${patient.details.email || 'N/A'}\nPhone: ${patient.details.phone || 'N/A'}\nGender: ${patient.details.gender || 'N/A'}\nAddress: ${patient.details.address || 'N/A'}`);
+      }
+    }
+    
+    // View booking details
+    function viewBookingDetails(patientId) {
+      const patient = patientsData.find(p => p.details.id === patientId);
+      const modalBody = document.getElementById('bookingDetails');
+      if (patient && patient.bookingdetail) {
+        const booking = patient.bookingdetail;
+        const modalTitle = document.getElementById('bookingModalLabel');
+        const fullName = `${patient.details.firstname || ''} ${patient.details.lastname || ''}`.trim() || 'N/A';
+        modalTitle.textContent = `Booking Details for ${fullName}`;
+        
+        // Handle comma-separated values
+        const statuses = booking.status ? booking.status.split(',').map(s => s.trim()) : ['N/A'];
+        const serviceTypes = booking.service_type ? booking.service_type.split(',').map(s => s.trim()) : ['N/A'];
+        const dates = booking.date ? booking.date.split(',').map(d => d.trim()) : ['N/A'];
+        
+        // Create a list of bookings
+        let bookingsHTML = '<ul class="booking-list">';
+        const maxLength = Math.max(statuses.length, serviceTypes.length, dates.length);
+        
+        for (let i = 0; i < maxLength; i++) {
+          const status = statuses[i] || statuses[0] || 'N/A';
+          const service = serviceTypes[i] || serviceTypes[0] || 'N/A';
+          const date = dates[i] ? new Date(dates[i]).toLocaleDateString() : 'N/A';
+          
+          bookingsHTML += `
+            <li>
+              <strong>Booking ${i + 1}</strong><br>
+              Status: ${status}<br>
+              Service: ${service}<br>
+              Date: ${date}
+            </li>
+          `;
+        }
+        bookingsHTML += '</ul>';
+        
+        modalBody.innerHTML = bookingsHTML;
+        new bootstrap.Modal(document.getElementById('bookingModal')).show();
+      } else {
+        modalBody.innerHTML = '<p>No booking details available for this patient.</p>';
+        new bootstrap.Modal(document.getElementById('bookingModal')).show();
+      }
+    }
+    
+    // Edit patient
+    function editPatient(patientId) {
+      alert('Edit functionality would be implemented here');
+    }
+    
+    // Toggle patient status
+    function togglePatientStatus(patientId, currentStatus) {
+      const action = currentStatus ? 'deactivate' : 'activate';
+      if (confirm(`Are you sure you want to ${action} this patient?`)) {
+        alert(`Patient ${action} functionality would be implemented here`);
+      }
+    }
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuth();
+      loadPatients();
+      
+      document.getElementById('searchInput').addEventListener('input', searchPatients);
+      document.getElementById('searchBtn').addEventListener('click', searchPatients);
+    });
+  </script>
+</body>
+
+</html>
